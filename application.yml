@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+  kafka:
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    # --- CRITICAL ADDITIONS FOR CONSUMER ---
+    consumer:
+      group-id: midas-core-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        # This is important for JSON deserialization to work with your custom Transaction class
+        spring.json.trusted.packages: com.jpmc.midascore.foundation # Or '*' to trust all
+        spring.json.value.default.type: com.jpmc.midascore.foundation.Transaction # Explicitly tell JSON deserializer the target type
+general:
+  kafka-topic: transactions
